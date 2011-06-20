@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+        <style>
+        body {
+            font-family: Helvetica;
+        }
+        #wrap {
+            width: 1000px;
+            margin: 0 auto;
+        }
+        </style>
+    </head>
+    <body style="background: #DDD;">
+ 
+       <div id="wrap">
+       <h1>Flood fill</h1>
+       <p>This is a flood fill test. In order to avoid <a href="http://stackoverflow.com/questions/2688987/imagedata-of-an-externally-loaded-image">security issues with firefox/chrome</a> you should launch a web server and put this files in a public folder. Execute the command <b>python -m SimpleHTTPServer</b> is a good option too.</p>
+       <p>You can start clicking on the image</p>
+       <canvas id="R" style="background:#fff" ></canvas>
+       </div>
+
+       <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+       <script type="text/javascript" src="pixel_ops.js"></script>
+       <script>
+            // from http://www.williammalone.com/articles/html5-canvas-javascript-paint-bucket-tool/#subTitle4
+      
+            $(document).ready(function() {
+                var cnvs = document.getElementById('R');
+                var ctx = cnvs.getContext('2d');
+                // load image
+                var image = new Image();  
+                image.src = "ex1.png";  
+                $(image).load(function() {  
+                    ctx.width = cnvs.width = image.width;
+                    ctx.height = cnvs.height = image.height;
+                    ctx.drawImage(image, 0, 0);  
+                    var offset = $(cnvs).offset();
+                    $(cnvs).click(function(e) {
+                        var x =  Math.floor(e.pageX - offset.left);  
+                        var y = Math.floor(e.pageY- offset.top);  
+
+                        var I = ctx.getImageData(0, 0, cnvs.width, cnvs.height);
+                        flood_fill(I.data, ctx.width, ctx.height, x, y, [255, 0, 0]);
+                        ctx.putImageData(I,0,0);
+                    });
+                });  
+            });
+
+            /*
+            */
+
+        </script>
+    </body>
+</html>
