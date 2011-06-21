@@ -57,7 +57,7 @@
                             var y = Math.floor(e.pageY- offset.top);  
 
                             var I = ctx.getImageData(0, 0, cnvs.width, cnvs.height);
-                            var poly = countour(I.data, ctx.width, ctx.height, x, y);
+                            var poly = contour(I.data, ctx.width, ctx.height, x, y);
                             draw_poly(ctx, poly);
                             poly.sort(function(a, b) {
                                 return a[0] + a[1] - b[0] - b[1];
