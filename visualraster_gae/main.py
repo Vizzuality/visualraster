@@ -9,6 +9,8 @@ from google.appengine.ext.webapp import template
 from google.appengine.api import urlfetch
 from google.appengine.api import files
 from google.appengine.ext.webapp import blobstore_handlers
+from  google.appengine.ext.blobstore  import  BlobInfo
+from google.appengine.ext import blobstore
 
 class MainPage(webapp.RequestHandler):
     def get(self):
@@ -22,7 +24,7 @@ def save_image(data):
     with files.open(path, 'a') as f:
       f.write(data)
     files.finalize(path)
-    return files.blobstore.get_blob_key(path)
+    return  BlobInfo.get(files.blobstore.get_blob_key(path))
 """
     def get(self, resource):
         resource = str(urllib.unquote(resource))
@@ -32,13 +34,15 @@ def save_image(data):
 
 class ImageCache(db.Model):
     path = db.StringProperty()
-    blog_key = db.StringProperty()
+    img_path = db.StringProperty()
+    blob_key = db.StringProperty()
+    blob = blobstore.BlobReferenceProperty()
 
     @staticmethod
     def get_for_path(path):
-        k = ImageCache.all().filter("path =", path).fetch(1)
+        k = ImageCache.all().filter("img_path =", path).fetch(1)
         if k:
-            return k[0].blog_key
+            return k[0].blob
 
 class ImageProxyCache(blobstore_handlers.BlobstoreDownloadHandler):
     images_url = 'http://mountainbiodiversity.org'
@@ -50,7 +54,8 @@ class ImageProxyCache(blobstore_handlers.BlobstoreDownloadHandler):
             result = urlfetch.fetch(url)
             if result.status_code == 200:
                 k = save_image(result.content)
-            ImageCache(blob_key=k, path=path).put();
+            ImageCache(blob=k, img_path=path).put();
+
         self.response.headers['Expires'] = 'Thu, 15 Apr 2020 20:00:00 GMT'
         self.send_blob(k)
 
