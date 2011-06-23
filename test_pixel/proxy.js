@@ -2,9 +2,9 @@
 // Cross Site CANVAS tag security
 
 var http = require('http')
-    url = require("url"),
+    url  = require("url"),
     path = require("path"),
-    fs = require("fs");
+    fs   = require("fs");
 
 http.createServer(function(request, response) {
   var   uri      = url.parse(request.url).pathname
@@ -21,12 +21,10 @@ http.createServer(function(request, response) {
       }
 
       http.get(options, function(res){
-        console.log(res.statusCode);
 
         var headers = res.headers;
         headers['access-control-allow-origin'] = '*';
         headers['access-control-allow-credentials'] = 'true';
-        console.log(headers);
         response.writeHead(res.statusCode, headers);
 
         res.on('data', function (chunk) {
