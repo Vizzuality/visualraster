@@ -11,16 +11,21 @@ This repo contains some examples of per pixel image processing using HTML5 canva
 
 In order to run examples you should put files in a public folder of your http server. This is because security issues with cross domain images using canvas element:
 
-    $ git clone git://github.com/Vizzuality/visualraster.git
-    $ cd test_pixel
-    $ python -m SimpleHTTPServer
-    $ open http://localhost:8000 (on osx)
+``` bash
+$ git clone git://github.com/Vizzuality/visualraster.git
+$ cd test_pixel
+$ python -m SimpleHTTPServer
+$ open http://localhost:8000 (on osx)
+```
 
+If you want to run the maps_threshold example locally, you will need to
+run a small proxy server to bypass the CANVAS tag cross domain policy in order to load remote tiles.
 
-this is a WIP, enjoy :)
-  
+Install node.js and run the proxy.js like so:
 
-
-
-
-
+``` bash
+$ git clone git://github.com/Vizzuality/visualraster.git
+$ cd test_pixel
+$ node proxy.js
+$ open http://localhost:8080/maps_threshold.html (on osx)
+```
