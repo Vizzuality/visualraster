@@ -45,91 +45,40 @@
        <script type="text/javascript" src="canvas_tile_layer.js"></script>
 
        <script>
-        
-    
-            function filter(image_data, w, h, threshold) {
-                var components = 4; //rgba
-                var pixel_pos;
-                for(var i=0; i < w; ++i) {
-                    for(var j=0; j < h; ++j) {
-                        var pixel_pos = (j*w + i) * components;
-                        if(image_data[pixel_pos] < threshold) {
-                            image_data[pixel_pos] = image_data[pixel_pos + 1] = image_data[pixel_pos + 2] = 0;
-                            image_data[pixel_pos + 3] = 0;
-                        }
-                    }
+         var App = function(){
+					var me = {
+						mapOptions: {
+                zoom: 3,
+                center: new google.maps.LatLng(41.850033,-87.6500523),
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+              }                
+					};
+			
+					me.init = function(){
+              this.heightLayer = new CanvasTileLayer();
+
+              var map = new google.maps.Map(document.getElementById("map"), this.mapOptions);
+              map.overlayMapTypes.insertAt(0, this.heightLayer);
+              this.setup_ui();								
+					};
+			
+					me.setup_ui = function(){								
+						var that = this;
+              $("#slider").slider({
+                slide: function(event, ui) {  
+                  $("#slider_value").html(8000*ui.value/100.0 + " meters");
+                  that.heightLayer.filter_tiles(ui.value);
                 }
-            };
-
-            var App = function(){
-							var me = {
-								  last_threshold: null
-								, threshold: null
-								, mapOptions: {
-                    zoom: 3,
-                    center: new google.maps.LatLng(41.850033,-87.6500523),
-                    mapTypeId: google.maps.MapTypeId.ROADMAP
-                }                
-							};
-							
-							me.init = function(){
-                this.heightLayer = new CanvasTileLayer(this.canvas_setup);
-
-                var map = new google.maps.Map(document.getElementById("map"), this.mapOptions);
-                map.overlayMapTypes.insertAt(0, this.heightLayer);
-                this.setup_ui();								
-							};
-							
-							me.canvas_setup = function(canvas, coord, zoom){
-								var that = this;
-                var image = new Image();  
-                var ctx = canvas.getContext('2d');
-                image.src = "http://localhost:8080/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
-                canvas.image = image;
-                $(image).load(function() { 
-                  ctx.drawImage(image, 0, 0);  
-                  that.filter_tile(canvas, that.threshold);
-                });								
-							};
-							
-							me.setup_ui = function(){								
-								var that = this;
-                $("#slider").slider({
-                  slide: function(event, ui) {  
-                    $("#slider_value").html(8000*ui.value/100.0 + " meters");
-                    that.filter_tiles(ui.value);
-                  }
-                });
-							};
-														
-              me.filter_tiles = function(threshold) {
-								var that = this;
-								
-                for(var c in this.heightLayer.tiles) {
-                  this.filter_tile(this.heightLayer.tiles[c], threshold);
-                }								
-								this.last_threshold = threshold;	
-              };
-							
-              me.filter_tile = function(canvas, threshold) {
-                var ctx = canvas.getContext('2d');
-                ctx.globalAlpha = 0.5;
-
-                if (this.last_threshold > threshold) 
-									ctx.drawImage(canvas.image, 0, 0); 
-                var I = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                filter(I.data, ctx.width, ctx.height, 255.0*threshold/100.0);
-                ctx.putImageData(I,0,0);										
-              };														
-							
-							return me;
-						}();
-	
-	    
-            $(document).ready(function() {
-               App.init();
-            });
-        </script>
-    </body>
+              });
+					};							
+																															
+					return me;
+				}();
+  
+        $(document).ready(function() {
+           App.init();
+        });
+  	</script>
+  </body>
 </html>
 
