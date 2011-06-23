@@ -49,3 +49,12 @@ CanvasTileLayer.prototype.releaseTile = function(tile) {
     delete this.tiles[id];
 };
 
+CanvasTileLayer.prototype.filter_tile = function(canvas, threshold) {
+  var ctx = canvas.getContext('2d');
+  ctx.globalAlpha = 0.5;
+	ctx.drawImage(canvas.image, 0, 0); 
+  var I = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  filter(I.data, ctx.width, ctx.height, 255.0*threshold/100.0);
+  ctx.putImageData(I,0,0);										
+};
+

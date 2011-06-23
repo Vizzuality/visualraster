@@ -61,66 +61,74 @@
                 }
             };
 
-            var App = {
-                init: function() {  
-                    var chicago = new google.maps.LatLng(41.850033,-87.6500523);
-                    var mapOptions = {
-                        zoom: 3,
-                        center: chicago,
-                        mapTypeId: google.maps.MapTypeId.ROADMAP
-                    };
-                    map = new google.maps.Map(document.getElementById("map"), mapOptions);
-                    this.heightLayer = new CanvasTileLayer(App.canvas_setup);
-                    map.overlayMapTypes.insertAt(0, this.heightLayer);
-                    this.setup_ui();
-                },
+            var App = function(){
+							var me = {
+								  last_threshold: null
+								, threshold: null
+								, mapOptions: {
+                    zoom: 3,
+                    center: new google.maps.LatLng(41.850033,-87.6500523),
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                }                
+							};
+							
+							me.init = function(){
+                this.heightLayer = new CanvasTileLayer(this.canvas_setup);
 
-                setup_ui: function() {
-                    $("#slider").slider({
-                        slide: function(event, ui) {  
-                            $("#slider_value").html(8000*ui.value/100.0 + " meters");
-                            App.filter_tiles(ui.value);
-                        }
-                    });
-                },
+                var map = new google.maps.Map(document.getElementById("map"), this.mapOptions);
+                map.overlayMapTypes.insertAt(0, this.heightLayer);
+                this.setup_ui();								
+							};
+							
+							me.canvas_setup = function(canvas, coord, zoom){
+								var that = this;
+                var image = new Image();  
+                var ctx = canvas.getContext('2d');
+                image.src = "http://localhost:8080/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
+                canvas.image = image;
+                $(image).load(function() { 
+                  ctx.drawImage(image, 0, 0);  
+                  that.filter_tile(canvas, that.threshold);
+                });								
+							};
+							
+							me.setup_ui = function(){								
+								var that = this;
+                $("#slider").slider({
+                  slide: function(event, ui) {  
+                    $("#slider_value").html(8000*ui.value/100.0 + " meters");
+                    that.filter_tiles(ui.value);
+                  }
+                });
+							};
+														
+              me.filter_tiles = function(threshold) {
+								var that = this;
+								
+                for(var c in this.heightLayer.tiles) {
+                  this.filter_tile(this.heightLayer.tiles[c], threshold);
+                }								
+								this.last_threshold = threshold;	
+              };
+							
+              me.filter_tile = function(canvas, threshold) {
+                var ctx = canvas.getContext('2d');
+                ctx.globalAlpha = 0.5;
 
-                filter_tile: function(canvas, threshold) {
-                    var ctx = canvas.getContext('2d');
-                    ctx.globalAlpha = 0.5;
-                    ctx.drawImage(canvas.image, 0, 0);  
-                    var I = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    filter(I.data, ctx.width, ctx.height, 255.0*threshold/100.0);
-                    ctx.putImageData(I,0,0);
-                },
-
-                filter_tiles: function(threshold) {
-                    this.threshold = threshold;
-                    for(var c in App.heightLayer.tiles) {
-                        this.filter_tile(App.heightLayer.tiles[c], threshold);
-                    }
-                },
-
-                canvas_setup: function(canvas, coord, zoom) {
-                  var image = new Image();  
-                  var ctx = canvas.getContext('2d');
-                  image.src = "http://localhost:8080/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
-                  canvas.image = image;
-                  $(image).load(function() { 
-                        //ctx.globalAlpha = 0.5;
-                        ctx.drawImage(image, 0, 0);  
-                        App.filter_tile(canvas, App.threshold);
-                  });
-                }
-
-            }
-      
+                if (this.last_threshold > threshold) 
+									ctx.drawImage(canvas.image, 0, 0); 
+                var I = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                filter(I.data, ctx.width, ctx.height, 255.0*threshold/100.0);
+                ctx.putImageData(I,0,0);										
+              };														
+							
+							return me;
+						}();
+	
+	    
             $(document).ready(function() {
                App.init();
             });
-
-            /*
-            */
-
         </script>
     </body>
 </html>
