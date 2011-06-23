@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+        <title>Visual Raster: tile manipulation using Canvas</title>
         <style>
         body, html{
             font-family: Helvetica;
@@ -15,27 +16,32 @@
         #slider { margin: 10px; }
         #map {
             width: 100%;
-            height: 100%;
+            height: 400px;
+        }
+        #map_wrapper {
+            margin-top: 20px;
+            border: 1px solid #DDD;
+            padding: 4px;
         }
         </style>
     </head>
-    <body style="background: #DDD;">
+    <body style="background: #FFF;">
  
        <div id="wrap">
-       <h1>threshold</h1>
-       <p>move slider</p>
+       <h1>Visual Raster: tile manipulation using Canvas</h1>
+       <p>Move the slider to filter area above certain meters</p>
        <div id="slider"></div>
-       <div id="slider_value">0</div>
-       <div id="current_canvas">0</div>
-       <!--<canvas id="R" style="background:#fff" ></canvas> -->
-       <div id="map"></div>
+       <div id="slider_value">0 meters</div>
+       <!--<div id="current_canvas">0</div>-->
+       <div id="map_wrapper">
+        <div id="map"></div>
+       </div>
        </div>
 
        <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
        <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-       <script type="text/javascript" src="pixel_ops.js"></script>
        <script type="text/javascript" src="canvas_tile_layer.js"></script>
 
        <script>
@@ -72,7 +78,7 @@
                 setup_ui: function() {
                     $("#slider").slider({
                         slide: function(event, ui) {  
-                            $("#slider_value").html(8000*ui.value/100.0);
+                            $("#slider_value").html(8000*ui.value/100.0 + " meters");
                             App.filter_tiles(ui.value);
                         }
                     });
@@ -97,11 +103,7 @@
                 canvas_setup: function(canvas, coord, zoom) {
                   var image = new Image();  
                   var ctx = canvas.getContext('2d');
-
-                  //image.src = 'http://earthengine.googleapis.com/map/6c3a7801be27c267a6d81fe88008e9ad/' + zoom +'/' + coord.x'/' + coord.y +'?token=d8efcb9bd7c3bdaad50fabfd2dd405cc'
-                  //image.src = "/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
-                  image.src = "/map/6c3a7801be27c267a6d81fe88008e9ad/" + zoom + "/"+ coord.x + "/" + coord.y +"?token=d8efcb9bd7c3bdaad50fabfd2dd405cc";
-            
+                  image.src = "http://localhost:8080/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
                   canvas.image = image;
                   $(image).load(function() { 
                         //ctx.globalAlpha = 0.5;
@@ -122,3 +124,4 @@
         </script>
     </body>
 </html>
+
