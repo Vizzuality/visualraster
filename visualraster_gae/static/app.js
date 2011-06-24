@@ -25,6 +25,7 @@ var App = {
         map = new google.maps.Map(document.getElementById("map"), mapOptions);
         this.heightLayer = layer || new CanvasTileLayer(App.canvas_setup, filter);
         map.overlayMapTypes.insertAt(0, this.heightLayer);
+        App.map = map;
         this.setup_ui();
     },
 
@@ -41,7 +42,7 @@ var App = {
     canvas_setup: function(canvas, coord, zoom) {
       var image = new Image();  
       var ctx = canvas.getContext('2d');
-      image.src = "/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
+      image.src = "/proxy/mountainbiodiversity.org/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
       canvas.image = image;
       $(image).load(function() { 
             //ctx.globalAlpha = 0.5;

@@ -50,6 +50,17 @@ CanvasTileLayer.prototype.filter_tile = function(canvas, args) {
     ctx.putImageData(I,0,0);
 }
 
+// get all tiles in view and return an imagedata object
+// with tiles composed on it
+CanvasTileLayer.prototype.composed = function(w, h) {
+    //var canvas = document.createElement('canvas');
+    //var ctx = canvas.getContext('2d');
+
+    
+    
+    
+}
+
 CanvasTileLayer.prototype.filter_tiles = function() {
     var args = [];
     for (var i in arguments) {
@@ -57,7 +68,6 @@ CanvasTileLayer.prototype.filter_tiles = function() {
     }
     for(var c in this.tiles) {
         this.filter_tile(this.tiles[c], args);
-    
     }
 }
 CanvasTileLayer.prototype.getTile = function(coord, zoom, ownerDocument) {
