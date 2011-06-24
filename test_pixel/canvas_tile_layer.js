@@ -80,7 +80,7 @@ CanvasTileLayer.prototype.filter_tiles = function(threshold) {
 
 CanvasTileLayer.prototype.filter_tile = function(canvas) {
   var ctx = canvas.getContext('2d');
-  ctx.globalAlpha = 0.5;
+  //ctx.globalAlpha = 0.5;
 
   if (this.last_threshold > this.threshold) 
 		ctx.drawImage(canvas.image, 0, 0); 
