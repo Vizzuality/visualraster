@@ -45,40 +45,40 @@
        <script type="text/javascript" src="canvas_tile_layer.js"></script>
 
        <script>
-         var App = function(){
-					var me = {
-						mapOptions: {
-                zoom: 3,
-                center: new google.maps.LatLng(41.850033,-87.6500523),
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-              }                
-					};
-			
-					me.init = function(){
-              this.heightLayer = new CanvasTileLayer();
+           var App = function(){
+               var me = {
+                   mapOptions: {
+                       zoom: 3,
+                       center: new google.maps.LatLng(41.850033,-87.6500523),
+                       mapTypeId: google.maps.MapTypeId.ROADMAP
+                   }                
+               };
 
-              var map = new google.maps.Map(document.getElementById("map"), this.mapOptions);
-              map.overlayMapTypes.insertAt(0, this.heightLayer);
-              this.setup_ui();								
-					};
-			
-					me.setup_ui = function(){								
-						var that = this;
-              $("#slider").slider({
-                slide: function(event, ui) {  
-                  $("#slider_value").html(8000*ui.value/100.0 + " meters");
-                  that.heightLayer.filter_tiles(ui.value);
-                }
-              });
-					};							
-																															
-					return me;
-				}();
-  
-        $(document).ready(function() {
-           App.init();
-        });
-  	</script>
+               me.init = function(){
+                   this.heightLayer = new CanvasTileLayer();
+
+                   var map = new google.maps.Map(document.getElementById("map"), this.mapOptions);
+                   map.overlayMapTypes.insertAt(0, this.heightLayer);
+                   this.setup_ui();								
+               };
+
+               me.setup_ui = function(){								
+                   var that = this;
+                   $("#slider").slider({
+                       slide: function(event, ui) {  
+                           $("#slider_value").html(8000*ui.value/100.0 + " meters");
+                           that.heightLayer.filter_tiles(ui.value);
+                       }
+                   });
+               };							
+
+               return me;
+           }();
+
+           $(document).ready(function() {
+               App.init();
+           });
+       </script>
   </body>
 </html>
 
