@@ -15,7 +15,7 @@ function filter(image_data, w, h, threshold) {
 
 var App = {
     threshold: 0,
-    init: function() {  
+    init: function(layer) {  
         var chicago = new google.maps.LatLng(41.850033,-87.6500523);
         var mapOptions = {
             zoom: 3,
@@ -23,7 +23,7 @@ var App = {
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         map = new google.maps.Map(document.getElementById("map"), mapOptions);
-        this.heightLayer = new CanvasTileLayer(App.canvas_setup, filter);
+        this.heightLayer = layer || new CanvasTileLayer(App.canvas_setup, filter);
         map.overlayMapTypes.insertAt(0, this.heightLayer);
         this.setup_ui();
     },

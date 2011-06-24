@@ -17,6 +17,11 @@ class MainPage(webapp.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'templates', 'index.html')
         self.response.out.write(template.render(path, {}))
 
+class NFDI(webapp.RequestHandler):
+    def get(self):
+        path = os.path.join(os.path.dirname(__file__), 'templates', 'nfdi.html')
+        self.response.out.write(template.render(path, {}))
+
 
 
 def save_image(data):
@@ -61,6 +66,7 @@ class ImageProxyCache(blobstore_handlers.BlobstoreDownloadHandler):
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
+                                      ('/nfdi', NFDI),
                                       ('/env/(.*)', ImageProxyCache)],
                                      debug=True)
 

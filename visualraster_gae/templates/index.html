@@ -46,9 +46,11 @@
        <script type="text/javascript" src="/static/app.js"></script>
 
        <script>
+            {% block js %}
             $(document).ready(function() {
                App.init();
             });
+            {% endblock %}
         </script>
     </body>
 </html>
