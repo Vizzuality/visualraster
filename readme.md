@@ -19,7 +19,7 @@ $ open http://localhost:8000 (on osx)
 ```
 
 If you want to run the maps_threshold example locally, you will need to
-run a small proxy server to bypass the CANVAS tag cross domain policy in order to load remote tiles.
+run a small proxy server to bypass the CANVAS tag cross domain policy in order to manipulate remote tiles.
 
 Install node.js and run the proxy.js like so:
 
