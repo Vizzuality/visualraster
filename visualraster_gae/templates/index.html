@@ -43,84 +43,12 @@
        <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
        <script type="text/javascript" src="/static/canvas_tile_layer.js"></script>
+       <script type="text/javascript" src="/static/app.js"></script>
 
        <script>
-        
-    
-            function filter(image_data, w, h, threshold) {
-                var components = 4; //rgba
-                var pixel_pos;
-                for(var i=0; i < w; ++i) {
-                    for(var j=0; j < h; ++j) {
-                        var pixel_pos = (j*w + i) * components;
-                        if(image_data[pixel_pos] < threshold) {
-                            image_data[pixel_pos] = image_data[pixel_pos + 1] = image_data[pixel_pos + 2] = 0;
-                            image_data[pixel_pos + 3] = 0;
-                        }
-                    }
-                }
-            };
-
-            var App = {
-                init: function() {  
-                    var chicago = new google.maps.LatLng(41.850033,-87.6500523);
-                    var mapOptions = {
-                        zoom: 3,
-                        center: chicago,
-                        mapTypeId: google.maps.MapTypeId.ROADMAP
-                    };
-                    map = new google.maps.Map(document.getElementById("map"), mapOptions);
-                    this.heightLayer = new CanvasTileLayer(App.canvas_setup);
-                    map.overlayMapTypes.insertAt(0, this.heightLayer);
-                    this.setup_ui();
-                },
-
-                setup_ui: function() {
-                    $("#slider").slider({
-                        slide: function(event, ui) {  
-                            $("#slider_value").html(8000*ui.value/100.0 + " meters");
-                            App.filter_tiles(ui.value);
-                        }
-                    });
-                },
-
-                filter_tile: function(canvas, threshold) {
-                    var ctx = canvas.getContext('2d');
-                    ctx.globalAlpha = 0.5;
-                    ctx.drawImage(canvas.image, 0, 0);  
-                    var I = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    filter(I.data, ctx.width, ctx.height, 255.0*threshold/100.0);
-                    ctx.putImageData(I,0,0);
-                },
-
-                filter_tiles: function(threshold) {
-                    this.threshold = threshold;
-                    for(var c in App.heightLayer.tiles) {
-                        this.filter_tile(App.heightLayer.tiles[c], threshold);
-                    }
-                },
-
-                canvas_setup: function(canvas, coord, zoom) {
-                  var image = new Image();  
-                  var ctx = canvas.getContext('2d');
-                  image.src = "/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
-                  canvas.image = image;
-                  $(image).load(function() { 
-                        //ctx.globalAlpha = 0.5;
-                        ctx.drawImage(image, 0, 0);  
-                        App.filter_tile(canvas, App.threshold);
-                  });
-                }
-
-            }
-      
             $(document).ready(function() {
                App.init();
             });
-
-            /*
-            */
-
         </script>
     </body>
 </html>
