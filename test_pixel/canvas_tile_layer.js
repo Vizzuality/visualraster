@@ -29,7 +29,7 @@ CanvasTileLayer.prototype.canvas_setup = function(canvas, coord, zoom){
     var that = this;
     var image = new Image();  
     var ctx = canvas.getContext('2d');
-    image.src = "http://localhost:8080/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
+    image.src = "http://localhost:8080/proxy/mountainbiodiversity.org/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
     canvas.image = image;
     $(image).load(function() { 
         ctx.drawImage(image, 0, 0);  
