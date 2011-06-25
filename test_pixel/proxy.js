@@ -30,27 +30,29 @@ http.createServer(function(request, response) {
         res.on('data', function (chunk) {
           response.write(chunk, 'binary');
         });
-      }).on('end', function(e){
-        response.end();
+        
+        res.on('end', function(e){
+          response.end();
+        });        
       });
-      return;
-    }
+      
+    } else {
+      // does exist, so pull file from disk and send to browser
+  	  if (fs.statSync(filename).isDirectory()) filename += '/index.html';
 
-    // does exist, so pull file from disk and send to browser
-	  if (fs.statSync(filename).isDirectory()) filename += '/index.html';
+      fs.readFile(filename, "binary", function(err, file) {
+        if(err) {        
+          response.writeHead(500, {"Content-Type": "text/plain"});
+          response.write(err + "\n");
+          response.end();
+          return;
+        }
 
-    fs.readFile(filename, "binary", function(err, file) {
-      if(err) {        
-        response.writeHead(500, {"Content-Type": "text/plain"});
-        response.write(err + "\n");
+        response.writeHead(200);
+        response.write(file, "binary");
         response.end();
-        return;
-      }
-
-      response.writeHead(200);
-      response.write(file, "binary");
-      response.end();
-    });
+      });       
+    }
   });    
 }).listen(8080);
 
