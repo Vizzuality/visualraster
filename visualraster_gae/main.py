@@ -38,9 +38,7 @@ def save_image(data):
 """
 
 class ImageCache(db.Model):
-    path = db.StringProperty()
     img_path = db.StringProperty()
-    blob_key = db.StringProperty()
     blob = blobstore.BlobReferenceProperty()
 
     @staticmethod

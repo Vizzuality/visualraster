@@ -50,15 +50,20 @@ CanvasTileLayer.prototype.filter_tile = function(canvas, args) {
     ctx.putImageData(I,0,0);
 }
 
-// get all tiles in view and return an imagedata object
-// with tiles composed on it
-CanvasTileLayer.prototype.composed = function(w, h) {
-    //var canvas = document.createElement('canvas');
-    //var ctx = canvas.getContext('2d');
-
-    
-    
-    
+// render visible tiles on a canvas, return a canvas object
+// map: map where tiles are rendering
+CanvasTileLayer.prototype.composed = function(map, w, h) {
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    ctx.width = canvas.width = w || $(map).width();
+    ctx.height = canvas.height = h || $(map).height();
+    for(var i in this.tiles) {
+        var t = this.tiles[i];
+        var mpos = $(map).offset();
+        var pos = $(t).offset();
+        ctx.drawImage(t, pos.left - mpos.left, pos.top - mpos.top);
+    }
+    return canvas;
 }
 
 CanvasTileLayer.prototype.filter_tiles = function() {
