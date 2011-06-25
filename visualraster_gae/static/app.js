@@ -17,7 +17,7 @@ CanvasTileLayerThreshold.prototype.filter_tile = function(canvas, args) {
     var new_threshold = args[0];
     var ctx = canvas.getContext('2d');
     if(new_threshold < this.threshold) {
-        console.log("rendering");
+        //console.log("rendering");
         ctx.drawImage(canvas.image, 0, 0);  
     }
     var I = ctx.getImageData(0, 0, canvas.width, canvas.height);
