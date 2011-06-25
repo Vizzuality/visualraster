@@ -1,7 +1,5 @@
 
 function CanvasTileLayer(canvas_setup, filter) {
-    this.threshold = null;
-    this.last_threshold = null;
     this.tileSize = new google.maps.Size(256,256);
     this.maxZoom = 19;
     this.name = "Tile #s";

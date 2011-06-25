@@ -1,4 +1,29 @@
 
+// optimized version for threshold rendering
+function CanvasTileLayerThreshold (canvas_setup, filter) {
+    CanvasTileLayer.call(this, canvas_setup, filter);
+    this.threshold = 0;
+}
+
+CanvasTileLayerThreshold.prototype = new CanvasTileLayer();
+
+CanvasTileLayerThreshold.prototype.filter_tiles = function() {
+    var new_threshold = arguments[0];
+    CanvasTileLayer.prototype.filter_tiles.apply(this, arguments)
+    this.threshold = new_threshold;
+}
+
+CanvasTileLayerThreshold.prototype.filter_tile = function(canvas, args) {
+    var new_threshold = args[0];
+    var ctx = canvas.getContext('2d');
+    if(new_threshold < this.threshold) {
+        console.log("rendering");
+        ctx.drawImage(canvas.image, 0, 0);  
+    }
+    var I = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    this.filter.apply(this, [I.data, ctx.width, ctx.height].concat(args));
+    ctx.putImageData(I,0,0);
+}
 
 var App = function() {
         var me = {
@@ -37,7 +62,7 @@ var App = function() {
 
         me.init = function(layer) {
             var map = new google.maps.Map(document.getElementById("map"), this.mapOptions);
-            this.heightLayer = layer || new CanvasTileLayer(canvas_setup, filter);
+            this.heightLayer = layer || new CanvasTileLayerThreshold(canvas_setup, filter);
             map.overlayMapTypes.insertAt(0, this.heightLayer);
             this.map = map;
             this.setup_ui();
