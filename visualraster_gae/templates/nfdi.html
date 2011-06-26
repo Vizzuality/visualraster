@@ -1,0 +1,84 @@
+{% extends "index.html" %}
+
+{% block js %}
+
+    function canvas_setup(canvas, coord, zoom) {
+          var image = new Image();  
+          var ctx = canvas.getContext('2d');
+          //image.src = "/map/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
+          //image.src = "/proxy/earthengine.googleapis.com/map/6c3a7801be27c267a6d81fe88008e9ad/" + zoom + "/" + coord.x +"/"+ coord.y +"?token=d8efcb9bd7c3bdaad50fabfd2dd405cc"
+          image.src = "/proxy/mountainbiodiversity.org/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
+          canvas.image = image;
+          canvas.coord = coord;
+          $(image).load(function() { 
+                //ctx.globalAlpha = 0.5;
+                ctx.drawImage(image, 0, 0);  
+                canvas.image_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                App.heightLayer.filter_tile(canvas, [App.threshold]);
+          });
+    }
+
+    function colorize(v) {
+        if(v < 50) {
+            return [0, 100, 0];
+        } else if (v < 80) {
+            return [0, 255, 255];
+        } else if (v < 123) {
+            return [0, 0, 255];
+        }
+        return [255, 0, 0];
+    }
+
+    function filter(image_data, w, h, threshold) {
+        var components = 4; //rgba
+        var pixel_pos;
+        for(var i=0; i < w; ++i) {
+            for(var j=0; j < h; ++j) {
+                var pixel_pos = (j*w + i) * components;
+                if(image_data[pixel_pos] <= threshold) {
+                    image_data[pixel_pos + 3] = 0;
+                } else {
+                    var col = colorize(image_data[pixel_pos] - 100);
+                    image_data[pixel_pos] = col[0];
+                    image_data[pixel_pos + 1] = col[1];
+                    image_data[pixel_pos + 2] = col[2];
+                    image_data[pixel_pos + 3] = 255;//image_data[pixel_pos];
+                }
+            }
+        }
+    };
+
+    $(document).ready(function() {
+       var layer = new CanvasTileLayer(canvas_setup, filter);
+       App.init(layer);
+
+       function encode_hash() {
+            var ll = App.map.getCenter();
+            location.hash =  ll.lat() + ","+ ll.lng() + "," + App.map.getZoom();
+       }
+
+       function setup() {
+            var tk = location.hash.slice(1).split(',');
+            console.log(tk);
+            if(tk.length >= 3) {
+                App.map.setCenter(new google.maps.LatLng(parseFloat(tk[0]), parseFloat(tk[1])));
+                App.map.setZoom(parseInt(tk[2]));
+            }
+       }
+
+       setup();
+        
+       google.maps.event.addListener(App.map, 'center_changed', encode_hash);
+       google.maps.event.addListener(App.map, 'zoom_changed', encode_hash);
+       google.maps.event.addListener(App.map, 'click', function() {
+        var c = App.heightLayer.composed("#map");
+        var canvas = document.getElementById("canvas_test");
+        var ctx = canvas.getContext('2d');
+        ctx.width = canvas.width = c.width;
+        ctx.height = canvas.height = c.height;
+        
+        ctx.drawImage(c, 0, 0);
+        delete c;
+       });
+    });
+{% endblock %}

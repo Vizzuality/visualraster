@@ -17,6 +17,11 @@ class MainPage(webapp.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'templates', 'index.html')
         self.response.out.write(template.render(path, {}))
 
+class NFDI(webapp.RequestHandler):
+    def get(self):
+        path = os.path.join(os.path.dirname(__file__), 'templates', 'nfdi.html')
+        self.response.out.write(template.render(path, {}))
+
 
 
 def save_image(data):
@@ -33,9 +38,7 @@ def save_image(data):
 """
 
 class ImageCache(db.Model):
-    path = db.StringProperty()
     img_path = db.StringProperty()
-    blob_key = db.StringProperty()
     blob = blobstore.BlobReferenceProperty()
 
     @staticmethod
@@ -45,23 +48,24 @@ class ImageCache(db.Model):
             return k[0].blob
 
 class ImageProxyCache(blobstore_handlers.BlobstoreDownloadHandler):
-    images_url = 'http://mountainbiodiversity.org'
 
-    def get(self, path):
-        k = ImageCache.get_for_path(path)
+    def get(self, images_url, path):
+        key = images_url + "/" + path
+        k = ImageCache.get_for_path(key)
         if not k:
-            url = "%s/env/%s" % (ImageProxyCache.images_url, path)
-            result = urlfetch.fetch(url)
+            url = "http://%s/%s" % (images_url, path)
+            result = urlfetch.fetch(url +'?'+ self.request.environ['QUERY_STRING'])
             if result.status_code == 200:
                 k = save_image(result.content)
-            ImageCache(blob=k, img_path=path).put();
+            ImageCache(blob=k, img_path=key).put();
 
         self.response.headers['Expires'] = 'Thu, 15 Apr 2020 20:00:00 GMT'
         self.send_blob(k)
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
-                                      ('/env/(.*)', ImageProxyCache)],
+                                      ('/nfdi', NFDI),
+                                      ('/proxy/(.*)/(.*)', ImageProxyCache)],
                                      debug=True)
 
 def main():
