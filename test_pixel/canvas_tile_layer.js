@@ -4,7 +4,7 @@ function filter(image_data, w, h, threshold) {
     var pixel_pos;
     for(var i=0; i < w; ++i) {
         for(var j=0; j < h; ++j) {
-            var pixel_pos = (j*w + i) * components;
+            pixel_pos = (j*w + i) * components;
             if(image_data[pixel_pos] < threshold) {
                 image_data[pixel_pos] = image_data[pixel_pos + 1] = image_data[pixel_pos + 2] = 0;
                 image_data[pixel_pos + 3] = 0;
@@ -28,11 +28,11 @@ function CanvasTileLayer() {
 CanvasTileLayer.prototype.canvas_setup = function(canvas, coord, zoom){
     var that = this;
     var image = new Image();  
-    var ctx = canvas.getContext('2d');
+//    var ctx = canvas.getContext('2d');
     image.src = "http://localhost:8080/proxy/mountainbiodiversity.org/env/z" + zoom + "/"+ coord.x + "/" + coord.y +".png";
-    canvas.image = image;
+    canvas.canvas.image = image;
     $(image).load(function() { 
-        ctx.drawImage(image, 0, 0);  
+        canvas.ctx.drawImage(image, 0, 0);  
         that.filter_tile(canvas, that.threshold);
     });								
 };
@@ -58,35 +58,30 @@ CanvasTileLayer.prototype.create_tile_canvas = function(coord, zoom, ownerDocume
     if (tile_id in this.tiles) 
         delete this.tiles[tile_id];
 
-    this.tiles[tile_id] = canvas;
+    this.tiles[tile_id] = {canvas: canvas, ctx: ctx, image_data:ctx.getImageData(0, 0, canvas.width, canvas.height)};
 
     // custom setup
     if (this.canvas_setup) 
-        this.canvas_setup(canvas, coord, zoom);
+        this.canvas_setup(this.tiles[tile_id], coord, zoom);
 
     return canvas;
 }
 
 CanvasTileLayer.prototype.filter_tiles = function(threshold) {
-    var that = this;
     this.threshold = threshold;
-
-    for(var c in this.tiles) {
-        this.filter_tile(this.tiles[c]);
-    }								
-
+      for(var c in this.tiles) {
+          this.filter_tile(this.tiles[c]);
+      }								
     this.last_threshold = threshold;	
 };
 
-CanvasTileLayer.prototype.filter_tile = function(canvas) {
-    var ctx = canvas.getContext('2d');
-    //ctx.globalAlpha = 0.5;
-
+CanvasTileLayer.prototype.filter_tile = function(canvas_obj) {
     if (this.last_threshold > this.threshold) 
-        ctx.drawImage(canvas.image, 0, 0); 
-    var I = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    filter(I.data, ctx.width, ctx.height, 255.0 * this.threshold / 100.0);
-    ctx.putImageData(I,0,0);						
+        canvas_obj.ctx.drawImage(canvas_obj.canvas.image, 0, 0); 
+    canvas_obj.image_data = canvas_obj.ctx.getImageData(0, 0, canvas_obj.ctx.width, canvas_obj.ctx.height);
+
+    filter(canvas_obj.image_data.data, canvas_obj.ctx.width, canvas_obj.ctx.height, 255.0 * this.threshold / 100.0);
+    canvas_obj.ctx.putImageData(canvas_obj.image_data,0,0);						
 
 
     //   var filterWorker = new Worker('filter_worker.js');
